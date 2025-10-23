@@ -1,0 +1,284 @@
+.character-details-container {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  padding: 16px 0;
+}
+
+.character-details-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.breadcrumb-nav {
+  background-color: #fff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(44, 62, 80, 0.05);
+}
+
+.breadcrumb-item a {
+  color: #3498db;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.details-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  @media (min-width: 992px) {
+    flex-direction: row;
+  }
+}
+
+.image-section {
+  flex: 0 0 auto;
+
+  @media (min-width: 992px) {
+    width: 33.333%;
+  }
+}
+
+.info-section {
+  flex: 1;
+}
+
+.card {
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  height: fit-content;
+}
+
+.character-image-card {
+  .card-img-top {
+    border-bottom: 1px solid #f8f9fa;
+  }
+}
+
+.character-info-card {
+  .card-header {
+    border-bottom: 1px solid #f8f9fa;
+    padding: 20px 24px;
+  }
+
+  .card-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0;
+  }
+}
+
+.character-image {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+}
+
+.image-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  padding: 20px;
+  color: white;
+}
+
+.character-name-overlay {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.info-section {
+  &:not(:last-child) {
+    border-bottom: 1px solid #f8f9fa;
+  }
+}
+
+.featured-section {
+  background: linear-gradient(135deg, rgba(248, 249, 250, 0.8) 0%, rgba(255, 255, 255, 0.8) 100%);
+  border-radius: 10px;
+  border: 1px solid #f8f9fa !important;
+  box-shadow: 0 4px 6px rgba(44, 62, 80, 0.03);
+  padding: 20px 0;
+
+  .section-title {
+    border-bottom: 2px solid #3498db;
+    color: #2c3e50;
+    padding-bottom: 12px;
+    margin-bottom: 15px;
+    margin-top: 0;
+  }
+
+  .section-content {
+    padding: 0;
+  }
+}
+
+.section-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #3498db;
+  letter-spacing: 0.5px;
+}
+
+.info-item {
+  padding: 15px 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  border-left: 4px solid #3498db;
+  box-shadow: 0 2px 4px rgba(44, 62, 80, 0.05);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(44, 62, 80, 0.1);
+  }
+}
+
+.season-entry {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.season-label {
+  font-weight: 600;
+  color: #495057;
+  flex-shrink: 0;
+}
+
+.episode-list {
+  color: #212529;
+  font-weight: 500;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #495057;
+  display: block;
+  margin-bottom: 8px;
+  font-size: 1rem;
+}
+
+.spoiler-container {
+  .info-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+}
+
+.spoiler-toggle-btn {
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #2980b9;
+    transform: scale(1.05);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.25);
+  }
+}
+
+.info-value {
+  font-size: 1.1rem;
+  color: #212529;
+  font-weight: 500;
+}
+
+.spoiler-hidden {
+  background-color: #6c757d;
+  color: transparent;
+  padding: 2px 8px;
+  border-radius: 4px;
+  user-select: none;
+}
+
+.status-alive {
+  color: #155724;
+}
+
+.status-dead {
+  color: #721c24;
+}
+
+.status-unknown {
+  color: #856404;
+}
+
+.btn-outline-primary {
+  border-width: 2px;
+  font-weight: 500;
+  border-color: #3498db;
+  color: #3498db;
+
+  &:hover {
+    border-width: 2px;
+    background-color: #3498db;
+    color: white;
+  }
+}
+
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+  color: #3498db;
+}
+
+.loading-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+@media (max-width: 991.98px) {
+  .character-image {
+    height: 300px;
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+  }
+
+  .character-details-wrapper {
+    padding: 15px;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+}

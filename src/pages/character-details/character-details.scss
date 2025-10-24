@@ -53,6 +53,7 @@
   border-radius: 12px;
   overflow: hidden;
   height: fit-content;
+  background-color: transparent;
 }
 
 .character-image-card {
@@ -111,9 +112,7 @@
 
 .featured-section {
   background: linear-gradient(135deg, rgba(248, 249, 250, 0.8) 0%, rgba(255, 255, 255, 0.8) 100%);
-  border-radius: 10px;
   border: 1px solid #f8f9fa !important;
-  box-shadow: 0 4px 6px rgba(44, 62, 80, 0.03);
   padding: 20px 0;
 
   .section-title {
@@ -240,15 +239,11 @@
 }
 
 .btn-outline-primary {
-  border-width: 2px;
   font-weight: 500;
   border-color: #3498db;
-  color: #3498db;
 
   &:hover {
-    border-width: 2px;
     background-color: #3498db;
-    color: white;
   }
 }
 

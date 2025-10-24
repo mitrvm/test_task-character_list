@@ -5,7 +5,7 @@
         <nav aria-label="breadcrumb" class="breadcrumb-nav">
           <ol class="breadcrumb">
             <li class="breadcrumb-item">
-              <a routerLink="/characters" class="text-decoration-none">Characters</a>
+              <a routerLink="/characters" class="text-decoration-none">← Characters</a>
             </li>
             <li class="breadcrumb-item active" aria-current="page">
               @if (character) {
@@ -19,7 +19,25 @@
       </div>
     </div>
 
-    @if (character) {
+    @if (isLoading) {
+      <div class="loading-section">
+        <div class="card">
+          <div class="spinner-border"></div>
+        </div>
+      </div>
+    }
+
+    @if (error && !isLoading) {
+      <div class="loading-section">
+        <div class="card">
+          <div>An error has occurred.</div>
+          <p>{{ error }}</p>
+          <button class="btn btn-primary" (click)="loadCharacter(characterId!)">Try Again</button>
+        </div>
+      </div>
+    }
+
+    @if (character && !isLoading && !error) {
       <div class="details-grid">
         <div class="image-section">
           <div class="card character-image-card shadow-sm">
@@ -76,30 +94,28 @@
 
               <section class="info-section featured-section">
                 <h2 class="section-title">Appearances</h2>
-                <div class="section-content">
-                  @if (character.episode && character.episode.length > 0) {
-                    <div class="info-item">
-                      @for (
-                        seasonData of getSeasonEpisodes();
-                        track seasonData.season;
-                        let first = $first
-                      ) {
-                        <div class="season-entry">
-                          <span class="season-label">Season {{ seasonData.season }}:</span>
-                          <span class="episode-list">
-                            @if (seasonData.episodes.length === 1) {
-                              Episode {{ formatEpisodeList(seasonData.episodes) }}
-                            } @else {
-                              Episodes {{ formatEpisodeList(seasonData.episodes) }}
-                            }
-                          </span>
-                        </div>
-                      }
-                    </div>
-                  } @else {
-                    <p>No episode information available.</p>
-                  }
-                </div>
+                @if (character.episode && character.episode.length > 0) {
+                  <div>
+                    @for (
+                      seasonData of getSeasonEpisodes();
+                      track seasonData.season;
+                      let first = $first
+                    ) {
+                      <div class="season-entry">
+                        <span class="season-label">Season {{ seasonData.season }}:</span>
+                        <span class="episode-list">
+                          @if (seasonData.episodes.length === 1) {
+                            Episode {{ formatEpisodeList(seasonData.episodes) }}
+                          } @else {
+                            Episodes {{ formatEpisodeList(seasonData.episodes) }}
+                          }
+                        </span>
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <p>No episode information available.</p>
+                }
               </section>
 
               <section class="info-section featured-section">
@@ -116,18 +132,6 @@
                 </div>
               </section>
             </div>
-          </div>
-        </div>
-      </div>
-    } @else {
-      <div class="loading-section">
-        <div class="card">
-          <div class="card-body text-center">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
-            <p>Loading character details...</p>
-            <a routerLink="/characters" class="btn btn-outline-primary"> ← Back to Characters </a>
           </div>
         </div>
       </div>

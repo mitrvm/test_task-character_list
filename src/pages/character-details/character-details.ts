@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { GraphqlService } from '../../app/graphql.service';
-import { Character, Episode } from '../../entities/character.entity';
+import { Character } from '../../entities/character.entity';
+import { Subject, catchError, of } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 interface SeasonEpisodes {
   season: number;
@@ -12,14 +14,18 @@ interface SeasonEpisodes {
 @Component({
   selector: 'app-character-details',
   standalone: true,
-  imports: [RouterLink, CommonModule],
+  imports: [CommonModule],
   templateUrl: './character-details.html',
   styleUrl: './character-details.scss',
 })
-export class CharacterDetailsComponent implements OnInit {
+export class CharacterDetailsComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
+
   character: Character | null = null;
   characterId: string | null = null;
   isStatusRevealed: boolean = false;
+  isLoading: boolean = true;
+  error: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -34,15 +40,36 @@ export class CharacterDetailsComponent implements OnInit {
     }
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   loadCharacter(id: string): void {
-    this.graphqlService.getCharacter(id).subscribe({
-      next: (character) => {
-        this.character = character || null;
-      },
-      error: (error) => {
-        console.error('Error fetching character:', error);
-      },
-    });
+    this.isLoading = true;
+    this.error = null;
+
+    this.graphqlService
+      .getCharacter(id)
+      .pipe(
+        catchError((error) => {
+          console.error('Error fetching character:', error);
+          this.error = 'Failed to load character details. Please try again.';
+          return of(null);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (character) => {
+          this.character = character ?? null;
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error in subscription:', error);
+          this.error = 'An unexpected error occurred.';
+          this.isLoading = false;
+        },
+      });
   }
 
   toggleStatusSpoiler(): void {

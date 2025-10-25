@@ -1,13 +1,13 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, computed, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { GraphqlService } from '../../app/graphql.service';
-import { Character } from '../../entities/character.entity';
-import { Subject, catchError, of } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subject, takeUntil } from 'rxjs';
 import { InfoItemComponent } from '../../shared/components/info-item';
 import { LoadingSectionComponent } from '../../shared/components/loading-section';
 import { ErrorSectionComponent } from '../../shared/components/error-section';
+import { Character } from '../../entities/character.entity';
+import { characterQuery } from '../../store/character.query';
+import { CharacterService } from '../../store/character.service';
 
 interface SeasonEpisodes {
   season: number;
@@ -30,20 +30,32 @@ interface SeasonEpisodes {
 export class CharacterDetailsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
-  character: Character | null = null;
+  character = signal<Character | null>(null);
   characterId: string | null = null;
-  isStatusRevealed: boolean = false;
-  isLoading: boolean = true;
-  error: string | null = null;
+  isStatusRevealed = signal(false);
+  isLoading = signal(true);
+  error = signal<string | null>(null);
+
+  seasonEpisodes = computed(() => this.getSeasonEpisodes());
 
   constructor(
     private route: ActivatedRoute,
-    private graphqlService: GraphqlService,
+    private characterService: CharacterService,
   ) {
     this.characterId = this.route.snapshot.paramMap.get('id');
   }
 
   ngOnInit(): void {
+    characterQuery.selectedCharacter$.pipe(takeUntil(this.destroy$)).subscribe((character) => {
+      this.character.set(character);
+    });
+    characterQuery.loading$.pipe(takeUntil(this.destroy$)).subscribe((loading) => {
+      this.isLoading.set(loading);
+    });
+    characterQuery.error$.pipe(takeUntil(this.destroy$)).subscribe((error) => {
+      this.error.set(error);
+    });
+
     if (this.characterId) this.loadCharacter(this.characterId);
   }
 
@@ -53,44 +65,25 @@ export class CharacterDetailsComponent implements OnInit, OnDestroy {
   }
 
   loadCharacter(id: string): void {
-    this.isLoading = true;
-    this.error = null;
-
-    this.graphqlService
-      .getCharacter(id)
-      .pipe(
-        takeUntil(this.destroy$),
-        catchError((error) => {
-          this.error = `Ошибка при загрузке данных: ${error}`;
-          this.isLoading = false;
-          return of(null);
-        }),
-      )
-      .subscribe((character) => {
-        if (!character) return;
-
-        this.character = character;
-        this.isLoading = false;
-      });
+    this.characterService.loadCharacter(id);
   }
 
   toggleStatusSpoiler(): void {
-    this.isStatusRevealed = !this.isStatusRevealed;
+    this.isStatusRevealed.update((value) => !value);
   }
 
-  getSeasonEpisodes(): SeasonEpisodes[] {
-    if (!this.character?.episode || this.character.episode.length === 0) return [];
+  private getSeasonEpisodes(): SeasonEpisodes[] {
+    const character = this.character();
+    if (!character?.episode || character.episode.length === 0) return [];
 
     const seasons: { [key: number]: string[] } = {};
-
-    this.character.episode.forEach((ep) => {
+    character.episode.forEach((ep) => {
       const episodeCode = ep.episode; // S01E01
       const seasonMatch = episodeCode.match(/S(\d+)E\d+/i);
 
       if (seasonMatch) {
         const seasonNumber = parseInt(seasonMatch[1], 10);
         if (!seasons[seasonNumber]) seasons[seasonNumber] = [];
-
         seasons[seasonNumber].push(episodeCode);
       }
     });

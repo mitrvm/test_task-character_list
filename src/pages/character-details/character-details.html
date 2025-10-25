@@ -8,8 +8,8 @@
               <a routerLink="/characters" class="text-decoration-none">← Characters</a>
             </li>
             <li class="breadcrumb-item active" aria-current="page">
-              @if (character) {
-                {{ character.name }}
+              @if (character()) {
+                {{ character()?.name }}
               } @else {
                 Character Details
               }
@@ -19,23 +19,23 @@
       </div>
     </div>
 
-    @if (isLoading) {
+    @if (isLoading()) {
       <app-loading-section />
     }
 
-    @if (error && !isLoading) {
-      <app-error-section [message]="error" (retry)="loadCharacter(characterId!)" />
+    @if (error() && !isLoading()) {
+      <app-error-section [message]="error()!" (retry)="loadCharacter(characterId || '')" />
     }
 
-    @if (character && !isLoading && !error) {
+    @if (character() && !isLoading() && !error()) {
       <div class="details-grid">
         <div class="image-section">
           <div class="card character-image-card shadow-sm">
             <div class="position-relative">
               <img
-                [src]="character.image"
+                [src]="character()?.image"
                 class="card-img-top character-image"
-                [alt]="character.name"
+                [alt]="character()?.name"
               />
             </div>
           </div>
@@ -44,25 +44,25 @@
         <div class="info-section">
           <div class="card character-info-card shadow-sm">
             <div class="card-header">
-              <h1 class="card-title">{{ character.name }}</h1>
+              <h1 class="card-title">{{ character()?.name }}</h1>
             </div>
             <div class="card-body">
               <section class="info-section">
                 <h2 class="section-title">Basic Information</h2>
                 <div class="info-grid">
-                  <app-info-item label="Gender" [value]="character.gender"></app-info-item>
-                  <app-info-item label="Species" [value]="character.species"></app-info-item>
-                  <app-info-item label="Origin" [value]="character.origin?.name"></app-info-item>
+                  <app-info-item label="Gender" [value]="character()?.gender"></app-info-item>
+                  <app-info-item label="Species" [value]="character()?.species"></app-info-item>
+                  <app-info-item label="Origin" [value]="character()?.origin?.name"></app-info-item>
                   <app-info-item
                     label="Location"
-                    [value]="character.location?.name"
+                    [value]="character()?.location?.name"
                   ></app-info-item>
                   <app-info-item
                     label="Status"
-                    [value]="character.status"
+                    [value]="character()?.status"
                     [isSpoiler]="true"
-                    [isRevealed]="isStatusRevealed"
-                    [spoilerClass]="character.status?.toLowerCase() || 'unknown'"
+                    [isRevealed]="isStatusRevealed()"
+                    [spoilerClass]="character()?.status?.toLowerCase() || 'unknown'"
                     (spoilerToggle)="toggleStatusSpoiler()"
                   ></app-info-item>
                 </div>
@@ -70,10 +70,10 @@
 
               <section class="info-section featured-section">
                 <h2 class="section-title">Appearances</h2>
-                @if (character.episode && character.episode.length > 0) {
+                @if (character()?.episode && (character()?.episode)!.length > 0) {
                   <div>
                     @for (
-                      seasonData of getSeasonEpisodes();
+                      seasonData of seasonEpisodes();
                       track seasonData.season;
                       let first = $first
                     ) {

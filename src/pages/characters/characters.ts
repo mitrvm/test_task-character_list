@@ -1,13 +1,13 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, computed, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { IconComponent } from '../../shared/components/icon/icon.component';
 import { LoadingSectionComponent } from '../../shared/components/loading-section';
 import { ErrorSectionComponent } from '../../shared/components/error-section';
-import { GraphqlService } from '../../app/graphql.service';
 import { Character } from '../../entities/character.entity';
 import { FormsModule } from '@angular/forms';
-import { Subject, debounceTime, distinctUntilChanged, catchError, of } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
+import { characterQuery } from '../../store/character.query';
+import { CharacterService } from '../../store/character.service';
 
 @Component({
   selector: 'app-home',
@@ -26,31 +26,80 @@ export class Characters implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private searchTerms = new Subject<string>();
 
-  characters: Character[] = [];
-  filteredCharacters: Character[] = [];
-  searchTerm: string = '';
-  genderFilter: string = 'all';
-  sortDirection: 'asc' | 'desc' | null = null;
+  characters = signal<Character[]>([]);
+  filteredCharacters = signal<Character[]>([]);
+  searchTerm = signal<string>('');
+  genderFilter = signal<string>('all');
+  sortDirection = signal<'asc' | 'desc' | null>(null);
 
-  currentPage: number = 1;
-  totalPages: number = 1;
-  isLoading: boolean = false;
-  error: string | null = null;
-  hasMore: boolean = true;
-  displayedCount: number = 20;
+  currentPage = signal<number>(1);
+  totalPages = signal<number>(1);
+  isLoading = signal<boolean>(false);
+  error = signal<string | null>(null);
+  hasMore = signal<boolean>(true);
+  displayedCount = signal<number>(20);
+
+  sortedAndFilteredCharacters = computed(() => {
+    const characters = this.characters();
+    const sortDir = this.sortDirection();
+    const count = this.displayedCount();
+
+    let result = [...characters];
+
+    // апишка не поддерживает сортировку на стороне сервера, поэтому пришлось на клиенте
+    if (sortDir !== null) {
+      result.sort((a, b) => {
+        const nameA = a.name.toLowerCase();
+        const nameB = b.name.toLowerCase();
+        if (nameA < nameB) return sortDir === 'asc' ? -1 : 1;
+        if (nameA > nameB) return sortDir === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return result.slice(0, count);
+  });
 
   constructor(
     private router: Router,
-    private graphqlService: GraphqlService,
+    private characterService: CharacterService,
   ) {}
 
   ngOnInit(): void {
+    characterQuery.characters$.pipe(takeUntil(this.destroy$)).subscribe((characters) => {
+      this.characters.set(characters);
+      this.filteredCharacters.set([...characters]);
+      this.applyFilters();
+    });
+
+    characterQuery.loading$.pipe(takeUntil(this.destroy$)).subscribe((loading) => {
+      this.isLoading.set(loading);
+    });
+    characterQuery.error$.pipe(takeUntil(this.destroy$)).subscribe((error) => {
+      this.error.set(error);
+    });
+    characterQuery.currentPage$.pipe(takeUntil(this.destroy$)).subscribe((page) => {
+      this.currentPage.set(page);
+    });
+    characterQuery.totalPages$.pipe(takeUntil(this.destroy$)).subscribe((pages) => {
+      this.totalPages.set(pages);
+    });
+    characterQuery.hasMore$.pipe(takeUntil(this.destroy$)).subscribe((hasMore) => {
+      this.hasMore.set(hasMore);
+    });
+    characterQuery.searchTerm$.pipe(takeUntil(this.destroy$)).subscribe((term) => {
+      this.searchTerm.set(term);
+    });
+    characterQuery.genderFilter$.pipe(takeUntil(this.destroy$)).subscribe((filter) => {
+      this.genderFilter.set(filter);
+    });
+
     this.loadCharacters();
 
     this.searchTerms
       .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
       .subscribe((term) => {
-        this.searchTerm = term;
+        this.searchTerm.set(term);
         this.resetAndLoadCharacters();
       });
   }
@@ -61,106 +110,63 @@ export class Characters implements OnInit, OnDestroy {
   }
 
   resetAndLoadCharacters(): void {
-    this.currentPage = 1;
-    this.characters = [];
-    this.displayedCount = 20;
-    this.hasMore = true;
-    this.loadCharacters();
+    this.characterService.resetCharacters();
+    this.characterService.loadCharacters(1, this.searchTerm(), this.genderFilter());
   }
 
   loadCharacters(): void {
-    if (this.isLoading || !this.hasMore) return;
-
-    this.isLoading = true;
-    this.error = null;
-
-    const filter: any = {};
-    if (this.searchTerm.trim()) filter.name = this.searchTerm;
-    if (this.genderFilter !== 'all')
-      filter.gender = this.genderFilter.charAt(0).toUpperCase() + this.genderFilter.slice(1);
-
-    this.graphqlService
-      .getCharacters(this.currentPage, filter)
-      .pipe(
-        takeUntil(this.destroy$),
-        catchError((err) => {
-          this.error = `Ошибка при загрузке данных: ${err}`;
-          this.isLoading = false;
-          return of({ results: [], info: {}, loading: false });
-        }),
-      )
-      .subscribe(({ results, info, loading }) => {
-        this.isLoading = loading;
-        if (loading) return;
-
-        const newCharacters = results ?? [];
-        this.totalPages = info?.pages ?? 1;
-        this.hasMore = this.currentPage < this.totalPages;
-
-        if (this.currentPage === 1) this.characters = newCharacters;
-        else this.characters = [...this.characters, ...newCharacters];
-
-        this.filteredCharacters = [...this.characters];
-        this.applyFilters();
-      });
+    if (this.isLoading() || !this.hasMore()) return;
+    this.characterService.loadCharacters(
+      this.currentPage(),
+      this.searchTerm(),
+      this.genderFilter(),
+    );
   }
 
   showMore(): void {
-    this.displayedCount += 20;
+    this.displayedCount.update((count) => count + 20);
     this.applyFilters();
   }
 
   loadMore(): void {
-    if (!this.isLoading && this.hasMore && this.displayedCount >= this.characters.length) {
-      this.currentPage++;
+    if (!this.isLoading() && this.hasMore() && this.displayedCount() >= this.characters().length) {
+      this.currentPage.update((page) => page + 1);
       this.loadCharacters();
-    } else if (this.displayedCount < this.characters.length) this.showMore();
+    } else if (this.displayedCount() < this.characters().length) {
+      this.showMore();
+    }
   }
 
   @HostListener('window:scroll')
   onWindowScroll(): void {
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) this.loadMore();
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
+      this.loadMore();
+    }
   }
 
   toggleSort(): void {
-    if (this.sortDirection === null) this.sortDirection = 'asc';
-    else if (this.sortDirection === 'asc') this.sortDirection = 'desc';
-    else this.sortDirection = null;
+    const currentDirection = this.sortDirection();
+    if (currentDirection === null) this.sortDirection.set('asc');
+    else if (currentDirection === 'asc') this.sortDirection.set('desc');
+    else this.sortDirection.set(null);
 
     this.applyFilters();
   }
 
   applyFilters(): void {
-    let result = [...this.characters];
-
-    // апишка не поддерживает сортировку на стороне сервера, поэтому пришлось на клиенте
-    if (this.sortDirection !== null) {
-      result.sort((a, b) => {
-        const nameA = a.name.toLowerCase();
-        const nameB = b.name.toLowerCase();
-
-        if (nameA < nameB) return this.sortDirection === 'asc' ? -1 : 1;
-        if (nameA > nameB) return this.sortDirection === 'asc' ? 1 : -1;
-        return 0;
-      });
-    }
-
-    this.filteredCharacters = result.slice(0, this.displayedCount);
+    this.filteredCharacters.set(this.sortedAndFilteredCharacters());
   }
-
   search(term: string): void {
     this.searchTerms.next(term);
   }
-
   onSearch(): void {
-    this.search(this.searchTerm);
+    this.search(this.searchTerm());
   }
-
   onGenderFilterChange(): void {
     this.resetAndLoadCharacters();
   }
 
-  goToCharacterDetails(id: string) {
+  goToCharacterDetails(id: string): void {
     this.router.navigate(['/character-details', id]);
   }
 

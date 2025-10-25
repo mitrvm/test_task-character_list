@@ -91,7 +91,6 @@
   height: 100%;
 }
 .featured-section {
-  border: 1px solid $accent !important;
   padding: 20px 0;
 }
 
@@ -120,15 +119,12 @@
   .character-image {
     height: 300px;
   }
-
   .section-title {
     font-size: 20px;
   }
-
   .character-details-wrapper {
     padding: 15px;
   }
-
   .info-grid {
     grid-template-columns: 1fr;
   }

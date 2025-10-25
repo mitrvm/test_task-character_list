@@ -39,7 +39,6 @@ export class Characters implements OnInit, OnDestroy {
   searchTerm = signal<string>('');
   genderFilter = signal<string>('all');
   sortDirection = signal<'asc' | 'desc' | null>(null);
-
   currentPage = signal<number>(1);
   totalPages = signal<number>(1);
   isLoading = signal<boolean>(false);
@@ -141,28 +140,19 @@ export class Characters implements OnInit, OnDestroy {
     if (!this.isLoading() && this.hasMore() && this.displayedCount() >= this.characters().length) {
       this.currentPage.update((page) => page + 1);
       this.loadCharacters();
-    } else if (this.displayedCount() < this.characters().length) {
-      this.showMore();
-    }
+    } else if (this.displayedCount() < this.characters().length) this.showMore();
   }
 
   @HostListener('window:scroll')
   onWindowScroll(): void {
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
-      this.loadMore();
-    }
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) this.loadMore();
   }
 
   toggleSort(): void {
     const currentDirection = this.sortDirection();
-    if (currentDirection === null) {
-      this.sortDirection.set('asc');
-    } else if (currentDirection === 'asc') {
-      this.sortDirection.set('desc');
-    } else {
-      this.sortDirection.set(null);
-    }
-
+    if (currentDirection === null) this.sortDirection.set('asc');
+    else if (currentDirection === 'asc') this.sortDirection.set('desc');
+    else this.sortDirection.set(null);
     this.applyFilters();
   }
 

@@ -49,7 +49,10 @@
                 </tr>
               </thead>
               <tbody>
-                @for (character of sortedAndFilteredCharacters(); track character.id) {
+                @for (
+                  character of sortedAndFilteredCharacters();
+                  track character.id + '_' + $index
+                ) {
                   <tr (click)="goToCharacterDetails(character.id)" class="character-row">
                     <td>
                       <img

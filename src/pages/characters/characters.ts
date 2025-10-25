@@ -51,6 +51,7 @@ export class Characters implements OnInit, OnDestroy {
       result.sort((a, b) => {
         const nameA = a.name.toLowerCase();
         const nameB = b.name.toLowerCase();
+
         if (nameA < nameB) return sortDir === 'asc' ? -1 : 1;
         if (nameA > nameB) return sortDir === 'asc' ? 1 : -1;
         return 0;
@@ -146,9 +147,13 @@ export class Characters implements OnInit, OnDestroy {
 
   toggleSort(): void {
     const currentDirection = this.sortDirection();
-    if (currentDirection === null) this.sortDirection.set('asc');
-    else if (currentDirection === 'asc') this.sortDirection.set('desc');
-    else this.sortDirection.set(null);
+    if (currentDirection === null) {
+      this.sortDirection.set('asc');
+    } else if (currentDirection === 'asc') {
+      this.sortDirection.set('desc');
+    } else {
+      this.sortDirection.set(null);
+    }
 
     this.applyFilters();
   }

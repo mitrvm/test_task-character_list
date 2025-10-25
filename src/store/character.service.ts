@@ -10,8 +10,17 @@ export class CharacterService {
 
   updateCharacters(characters: Character[], append = false) {
     const currentState = characterStore.getValue();
-    const updatedCharacters = append ? [...currentState.characters, ...characters] : characters;
 
+    const uniqueCharacters = characters.filter(
+      (char, index, self) => index === self.findIndex((c) => c.id === char.id),
+    );
+    let updatedCharacters;
+    if (append) {
+      const combined = [...currentState.characters, ...uniqueCharacters];
+      updatedCharacters = combined.filter(
+        (char, index, self) => index === self.findIndex((c) => c.id === char.id),
+      );
+    } else updatedCharacters = uniqueCharacters;
     characterStore.update({
       characters: updatedCharacters,
       loading: false,

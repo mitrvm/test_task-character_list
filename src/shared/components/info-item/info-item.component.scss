@@ -1,11 +1,19 @@
 @import '../../../styles/variables';
 
+:host {
+  display: block;
+  height: 100%;
+}
+
 .info-item {
   padding: 15px 20px;
   background-color: white;
   border-radius: 8px;
   border-left: 4px solid $secondary;
   box-shadow: 0 2px 4px rgba($primary, 0.1);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   transition: all 0.3s ease;
 
   &:hover {

@@ -45,6 +45,7 @@ export class Characters implements OnInit, OnDestroy {
   error = signal<string | null>(null);
   hasMore = signal<boolean>(true);
   displayedCount = signal<number>(20);
+  showBackToTop = signal<boolean>(false);
 
   sortedAndFilteredCharacters = computed(() => {
     const characters = this.characters();
@@ -146,6 +147,9 @@ export class Characters implements OnInit, OnDestroy {
   @HostListener('window:scroll')
   onWindowScroll(): void {
     if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) this.loadMore();
+
+    const scrollPosition = window.scrollY;
+    this.showBackToTop.set(scrollPosition > 300);
   }
 
   toggleSort(): void {
@@ -175,5 +179,12 @@ export class Characters implements OnInit, OnDestroy {
 
   getGenderIcon(gender: string): string {
     return gender === 'Male' ? 'male' : gender === 'Female' ? 'female' : 'unknown';
+  }
+
+  scrollToTop(): void {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
   }
 }

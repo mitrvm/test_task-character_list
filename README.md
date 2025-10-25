@@ -1,5 +1,7 @@
 # Список персонажей / Character list
 
+Cсылка на приложение: test-task-character-list.vercel.app
+
 ## Технический стек / Tech Stack
 
 - **Frontend Framework**: Angular 20.3.0

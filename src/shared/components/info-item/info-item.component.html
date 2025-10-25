@@ -11,7 +11,7 @@
     @if (isSpoiler) {
       @if (isRevealed) {
         <span [class]="'status-' + spoilerClass">
-          {{ value || 'Unknown' }}
+          {{ capitalizeFirstLetter(value) || 'Unknown' }}
         </span>
       } @else {
         <span class="spoiler-hidden">???</span>

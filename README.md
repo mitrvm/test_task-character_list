@@ -1,6 +1,6 @@
 # Список персонажей / Character list
 
-Cсылка на приложение: test-task-character-list.vercel.app
+Cсылка на приложение: [test-task-character-list.vercel.app](test-task-character-list.vercel.app) 
 
 ## Технический стек / Tech Stack
 

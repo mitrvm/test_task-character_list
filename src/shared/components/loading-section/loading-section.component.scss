@@ -1,0 +1,20 @@
+@import '../../../styles/variables';
+
+.loading-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+.spinner-border {
+  width: 32px;
+  height: 32px;
+  color: $secondary;
+}
+.card {
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  height: fit-content;
+  background-color: transparent;
+}

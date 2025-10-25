@@ -20,21 +20,11 @@
     </div>
 
     @if (isLoading) {
-      <div class="loading-section">
-        <div class="card">
-          <div class="spinner-border"></div>
-        </div>
-      </div>
+      <app-loading-section />
     }
 
     @if (error && !isLoading) {
-      <div class="loading-section">
-        <div class="card">
-          <div>An error has occurred.</div>
-          <p>{{ error }}</p>
-          <button class="btn btn-primary" (click)="loadCharacter(characterId!)">Try Again</button>
-        </div>
-      </div>
+      <app-error-section [message]="error" (retry)="loadCharacter(characterId!)" />
     }
 
     @if (character && !isLoading && !error) {
@@ -53,42 +43,28 @@
 
         <div class="info-section">
           <div class="card character-info-card shadow-sm">
-            <div class="card-header bg-white">
+            <div class="card-header">
               <h1 class="card-title">{{ character.name }}</h1>
             </div>
             <div class="card-body">
               <section class="info-section">
                 <h2 class="section-title">Basic Information</h2>
                 <div class="info-grid">
-                  <div class="info-item">
-                    <span class="info-label">Gender:</span>
-                    <span class="info-value">{{ character.gender }}</span>
-                  </div>
-                  <div class="info-item">
-                    <span class="info-label">Species:</span>
-                    <span class="info-value">{{ character.species }}</span>
-                  </div>
-                  <div class="info-item spoiler-container">
-                    <span class="info-label"
-                      >Status:
-                      <button class="spoiler-toggle-btn" (click)="toggleStatusSpoiler()">
-                        {{ isStatusRevealed ? 'Hide' : 'Reveal Spoiler' }}
-                      </button>
-                    </span>
-                    <span class="info-value">
-                      @if (isStatusRevealed) {
-                        <span class="status-{{ character.status?.toLowerCase() }}">
-                          {{
-                            character.status
-                              ? character.status.charAt(0).toUpperCase() + character.status.slice(1)
-                              : 'Unknown'
-                          }}
-                        </span>
-                      } @else {
-                        <span class="spoiler-hidden">???</span>
-                      }
-                    </span>
-                  </div>
+                  <app-info-item label="Gender" [value]="character.gender"></app-info-item>
+                  <app-info-item label="Species" [value]="character.species"></app-info-item>
+                  <app-info-item label="Origin" [value]="character.origin?.name"></app-info-item>
+                  <app-info-item
+                    label="Location"
+                    [value]="character.location?.name"
+                  ></app-info-item>
+                  <app-info-item
+                    label="Status"
+                    [value]="character.status"
+                    [isSpoiler]="true"
+                    [isRevealed]="isStatusRevealed"
+                    [spoilerClass]="character.status?.toLowerCase() || 'unknown'"
+                    (spoilerToggle)="toggleStatusSpoiler()"
+                  ></app-info-item>
                 </div>
               </section>
 
@@ -116,20 +92,6 @@
                 } @else {
                   <p>No episode information available.</p>
                 }
-              </section>
-
-              <section class="info-section featured-section">
-                <h2 class="section-title">Biography</h2>
-                <div class="section-content">
-                  <p>
-                    Detailed biography information would appear here. Alas, its not provided by the
-                    API. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus vitae
-                    fringilla turpis. Donec sit amet molestie urna, sed placerat massa. Nam et
-                    dignissim sem, ac ultricies tellus. Maecenas eu felis sit amet quam commodo
-                    fermentum vel vel sapien. Etiam ut nisi porttitor, consectetur enim non,
-                    accumsan justo.
-                  </p>
-                </div>
               </section>
             </div>
           </div>

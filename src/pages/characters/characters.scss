@@ -1,24 +1,28 @@
-.table-responsive {
-  margin-top: 20px;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.1);
-}
+@import '../../styles/variables';
 
 .table {
   margin-bottom: 0;
+  border-collapse: separate;
+  border-spacing: 0;
 
   thead.table-dark {
-    background-color: #2c3e50;
-
     th {
       font-weight: 600;
       text-transform: uppercase;
-      font-size: 0.85rem;
+      font-size: 14px;
       letter-spacing: 0.5px;
       border: none;
-      padding: 1rem;
+      padding: 16px;
       color: white;
+      background-color: $secondary;
+
+      &:first-child {
+        border-top-left-radius: 8px;
+      }
+
+      &:last-child {
+        border-top-right-radius: 8px;
+      }
     }
 
     .sortable-header {
@@ -28,7 +32,7 @@
       padding-right: 30px;
 
       &:hover {
-        background-color: rgba(255, 255, 255, 0.1);
+        background-color: $primary;
       }
 
       .sort-indicators {
@@ -47,7 +51,7 @@
 
           &.active {
             opacity: 1;
-            color: #3498db;
+            color: $secondary;
           }
         }
       }
@@ -60,19 +64,15 @@
       cursor: pointer;
 
       &:hover {
-        background-color: #f8f9fa;
+        background-color: $accent;
         transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(44, 62, 80, 0.05);
-      }
-
-      &:not(:last-child) {
-        border-bottom: 1px solid #f8f9fa;
+        box-shadow: 0 2px 4px rgba($primary, 0.05);
       }
 
       td {
-        padding: 1rem;
+        padding: 16px;
         vertical-align: middle;
-        color: #212529;
+        color: $text;
 
         &:first-child {
           width: 70px;
@@ -89,13 +89,8 @@
 .rounded-circle {
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #ffffff;
-  box-shadow: 0 2px 4px rgba(44, 62, 80, 0.1);
-}
-
-.table th,
-.table td {
-  vertical-align: middle;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba($primary, 0.1);
 }
 
 .search-container {
@@ -103,11 +98,10 @@
     border: 1px solid #ddd;
     border-radius: 4px;
     padding: 6px 12px;
-    font-size: 0.875rem;
 
     &:focus {
-      border-color: #3498db;
-      box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+      border-color: $secondary;
+      box-shadow: 0 0 0 4px rgba($secondary, 0.25);
     }
   }
 }
@@ -119,11 +113,10 @@
     border: 1px solid #ddd;
     border-radius: 4px;
     padding: 6px 12px;
-    font-size: 0.875rem;
 
     &:focus {
-      border-color: #3498db;
-      box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+      border-color: $secondary;
+      box-shadow: 0 0 0 4px rgba($secondary, 0.25);
     }
   }
 }

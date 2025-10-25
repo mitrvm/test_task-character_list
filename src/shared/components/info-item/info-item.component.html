@@ -1,0 +1,23 @@
+<div class="info-item" [class.spoiler-container]="isSpoiler">
+  <span class="info-label"
+    >{{ label }}:
+    @if (isSpoiler) {
+      <button class="spoiler-toggle-btn" (click)="toggleSpoiler()">
+        {{ isRevealed ? 'Hide' : 'Reveal Spoiler' }}
+      </button>
+    }
+  </span>
+  <span class="info-value">
+    @if (isSpoiler) {
+      @if (isRevealed) {
+        <span [class]="'status-' + spoilerClass">
+          {{ value || 'Unknown' }}
+        </span>
+      } @else {
+        <span class="spoiler-hidden">???</span>
+      }
+    } @else {
+      {{ capitalizeFirstLetter(value) || 'Unknown' }}
+    }
+  </span>
+</div>

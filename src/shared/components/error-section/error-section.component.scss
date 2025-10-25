@@ -1,0 +1,15 @@
+@import '../../../styles/variables';
+
+.error-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+.card {
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  height: fit-content;
+  background-color: transparent;
+}

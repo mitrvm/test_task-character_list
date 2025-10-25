@@ -26,6 +26,12 @@ const GET_CHARACTERS = gql`
         image
         status
         species
+        origin {
+          name
+        }
+        location {
+          name
+        }
         episode {
           id
           name
@@ -45,6 +51,12 @@ const GET_CHARACTER = gql`
       image
       status
       species
+      origin {
+        name
+      }
+      location {
+        name
+      }
       episode {
         id
         name
@@ -54,40 +66,37 @@ const GET_CHARACTER = gql`
   }
 `;
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class GraphqlService {
   private apollo = inject(Apollo);
 
   getCharacters(
     page?: number,
     filter?: CharacterFilter,
-  ): Observable<{ results: Character[]; info: any }> {
+  ): Observable<{ results: Character[]; info: any; loading: boolean }> {
     return this.apollo
       .watchQuery<any>({
         query: GET_CHARACTERS,
-        variables: {
-          page,
-          filter: filter || {},
-        },
+        variables: { page, filter: filter || {} },
+        notifyOnNetworkStatusChange: true,
+        fetchPolicy: 'network-only',
       })
       .valueChanges.pipe(
-        map((result) => {
-          return {
-            results: result.data?.characters?.results || [],
-            info: result.data?.characters?.info,
-          };
-        }),
+        map(({ data, loading }) => ({
+          results: data?.characters?.results ?? [],
+          info: data?.characters?.info ?? {},
+          loading,
+        })),
       );
   }
 
-  getCharacter(id: string): Observable<Character | undefined> {
+  getCharacter(id: string) {
     return this.apollo
-      .watchQuery<any>({
+      .query<any>({
         query: GET_CHARACTER,
         variables: { id },
+        fetchPolicy: 'network-only',
       })
-      .valueChanges.pipe(map((result) => result.data?.character));
+      .pipe(map((res) => res.data?.character as Character | undefined));
   }
 }

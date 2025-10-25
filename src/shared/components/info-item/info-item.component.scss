@@ -1,0 +1,77 @@
+@import '../../../styles/variables';
+
+.info-item {
+  padding: 15px 20px;
+  background-color: white;
+  border-radius: 8px;
+  border-left: 4px solid $secondary;
+  box-shadow: 0 2px 4px rgba($primary, 0.1);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba($primary, 0.08);
+  }
+}
+
+.info-label {
+  font-weight: 600;
+  color: $text-light;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.info-value {
+  color: $text;
+  font-weight: 500;
+}
+
+.spoiler-container {
+  .info-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+}
+
+.spoiler-toggle-btn {
+  background: $secondary;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #22335e;
+    transform: scale(1.05);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba($secondary, 0.25);
+  }
+}
+
+.spoiler-hidden {
+  background-color: #6c757d;
+  color: transparent;
+  padding: 2px 8px;
+  border-radius: 4px;
+  user-select: none;
+}
+
+.status-alive {
+  color: $success;
+}
+
+.status-dead {
+  color: $danger;
+}
+
+.status-unknown {
+  color: $warning;
+}

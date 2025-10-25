@@ -4,6 +4,10 @@ export interface Episode {
   episode: string;
 }
 
+export interface Location {
+  name: string;
+}
+
 export interface Character {
   id: string;
   name: string;
@@ -12,4 +16,6 @@ export interface Character {
   status?: string;
   species?: string;
   episode?: Episode[];
+  origin?: Location;
+  location?: Location;
 }

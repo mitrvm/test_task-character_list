@@ -1,7 +1,7 @@
 <div class="container-fluid py-4">
   <div class="row">
     <div class="col-12">
-      <div class="d-flex justify-content-end gap-2">
+      <div class="d-flex justify-content-end gap-2 mb-2">
         <!-- Поиск -->
         <div class="search-container">
           <input
@@ -27,10 +27,14 @@
         </div>
       </div>
 
-      <div class="card border-0 shadow-sm">
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover mb-0">
+      @if (error && !isLoading) {
+        <app-error-section [message]="error" (retry)="loadCharacters()" />
+      }
+
+      @if (characters && !error) {
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-0">
+            <table class="table table-hover">
               <thead class="table-dark">
                 <tr>
                   <th scope="col" class="text-center">Avatar</th>
@@ -71,7 +75,11 @@
             </table>
           </div>
         </div>
-      </div>
+      }
+
+      @if (isLoading) {
+        <app-loading-section />
+      }
     </div>
   </div>
 

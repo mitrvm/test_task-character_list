@@ -1,10 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { GraphqlService } from '../../app/graphql.service';
 import { Character } from '../../entities/character.entity';
 import { Subject, catchError, of } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { InfoItemComponent } from '../../shared/components/info-item';
+import { LoadingSectionComponent } from '../../shared/components/loading-section';
+import { ErrorSectionComponent } from '../../shared/components/error-section';
 
 interface SeasonEpisodes {
   season: number;
@@ -14,7 +17,13 @@ interface SeasonEpisodes {
 @Component({
   selector: 'app-character-details',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    RouterLink,
+    InfoItemComponent,
+    LoadingSectionComponent,
+    ErrorSectionComponent,
+  ],
   templateUrl: './character-details.html',
   styleUrl: './character-details.scss',
 })
@@ -35,9 +44,7 @@ export class CharacterDetailsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    if (this.characterId) {
-      this.loadCharacter(this.characterId);
-    }
+    if (this.characterId) this.loadCharacter(this.characterId);
   }
 
   ngOnDestroy(): void {
@@ -52,23 +59,18 @@ export class CharacterDetailsComponent implements OnInit, OnDestroy {
     this.graphqlService
       .getCharacter(id)
       .pipe(
+        takeUntil(this.destroy$),
         catchError((error) => {
-          console.error('Error fetching character:', error);
-          this.error = 'Failed to load character details. Please try again.';
+          this.error = `Ошибка при загрузке данных: ${error}`;
+          this.isLoading = false;
           return of(null);
         }),
-        takeUntil(this.destroy$),
       )
-      .subscribe({
-        next: (character) => {
-          this.character = character ?? null;
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Error in subscription:', error);
-          this.error = 'An unexpected error occurred.';
-          this.isLoading = false;
-        },
+      .subscribe((character) => {
+        if (!character) return;
+
+        this.character = character;
+        this.isLoading = false;
       });
   }
 
@@ -77,9 +79,7 @@ export class CharacterDetailsComponent implements OnInit, OnDestroy {
   }
 
   getSeasonEpisodes(): SeasonEpisodes[] {
-    if (!this.character?.episode || this.character.episode.length === 0) {
-      return [];
-    }
+    if (!this.character?.episode || this.character.episode.length === 0) return [];
 
     const seasons: { [key: number]: string[] } = {};
 
@@ -89,9 +89,8 @@ export class CharacterDetailsComponent implements OnInit, OnDestroy {
 
       if (seasonMatch) {
         const seasonNumber = parseInt(seasonMatch[1], 10);
-        if (!seasons[seasonNumber]) {
-          seasons[seasonNumber] = [];
-        }
+        if (!seasons[seasonNumber]) seasons[seasonNumber] = [];
+
         seasons[seasonNumber].push(episodeCode);
       }
     });
@@ -107,9 +106,7 @@ export class CharacterDetailsComponent implements OnInit, OnDestroy {
   formatEpisodeList(episodes: string[]): string {
     const episodeNumbers = episodes.map((ep) => {
       const match = ep.match(/S\d+E(\d+)/i);
-      if (match) {
-        return String(parseInt(match[1], 10));
-      }
+      if (match) return String(parseInt(match[1], 10));
       return ep;
     });
 

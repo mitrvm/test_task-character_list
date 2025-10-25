@@ -11,11 +11,29 @@
   ],
   "routes": [
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "src": "^/assets/(.*)$",
+      "headers": {
+        "cache-control": "max-age=31536000"
+      }
+    },
+    {
+      "src": "^/icons/(.*)$",
+      "headers": {
+        "cache-control": "max-age=31536000"
+      }
+    },
+    {
+      "src": "^/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))$",
+      "headers": {
+        "cache-control": "max-age=31536000"
+      }
+    },
+    {
+      "src": "^/(.*)$",
+      "dest": "/index.html",
+      "headers": {
+        "cache-control": "no-cache"
+      }
     }
-  ],
-  "github": {
-    "silent": true
-  }
+  ]
 }

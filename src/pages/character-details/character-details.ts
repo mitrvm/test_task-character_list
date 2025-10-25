@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, computed, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, computed, signal, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
@@ -38,10 +38,10 @@ export class CharacterDetailsComponent implements OnInit, OnDestroy {
 
   seasonEpisodes = computed(() => this.getSeasonEpisodes());
 
-  constructor(
-    private route: ActivatedRoute,
-    private characterService: CharacterService,
-  ) {
+  private route = inject(ActivatedRoute);
+  private characterService = inject(CharacterService);
+
+  constructor() {
     this.characterId = this.route.snapshot.paramMap.get('id');
   }
 

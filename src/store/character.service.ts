@@ -1,12 +1,13 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { characterStore } from './character.store';
-import { characterQuery } from './character.query';
 import { Character } from '../entities/character.entity';
 import { GraphqlService } from '../app/graphql.service';
 
 @Injectable({ providedIn: 'root' })
 export class CharacterService {
-  constructor(private graphqlService: GraphqlService) {}
+  private graphqlService = inject(GraphqlService);
+
+  constructor() {}
 
   updateCharacters(characters: Character[], append = false) {
     const currentState = characterStore.getValue();
@@ -57,7 +58,7 @@ export class CharacterService {
     this.setLoading(true);
     this.setError(null);
 
-    const filter: any = {};
+    const filter: { name?: string; gender?: string } = {};
     if (searchTerm?.trim()) filter.name = searchTerm;
     if (genderFilter && genderFilter !== 'all')
       filter.gender = genderFilter.charAt(0).toUpperCase() + genderFilter.slice(1);

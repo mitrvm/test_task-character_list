@@ -1,4 +1,12 @@
-import { Component, OnInit, OnDestroy, HostListener, computed, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  HostListener,
+  computed,
+  signal,
+  inject,
+} from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { IconComponent } from '../../shared/components/icon/icon.component';
 import { LoadingSectionComponent } from '../../shared/components/loading-section';
@@ -44,7 +52,7 @@ export class Characters implements OnInit, OnDestroy {
     const sortDir = this.sortDirection();
     const count = this.displayedCount();
 
-    let result = [...characters];
+    const result = [...characters];
 
     // апишка не поддерживает сортировку на стороне сервера, поэтому пришлось на клиенте
     if (sortDir !== null) {
@@ -61,10 +69,10 @@ export class Characters implements OnInit, OnDestroy {
     return result.slice(0, count);
   });
 
-  constructor(
-    private router: Router,
-    private characterService: CharacterService,
-  ) {}
+  private router = inject(Router);
+  private characterService = inject(CharacterService);
+
+  constructor() {}
 
   ngOnInit(): void {
     characterQuery.characters$.pipe(takeUntil(this.destroy$)).subscribe((characters) => {

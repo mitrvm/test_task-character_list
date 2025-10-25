@@ -1,6 +1,5 @@
 import { Query } from '@datorama/akita';
 import { CharacterState, characterStore } from './character.store';
-import { Character } from '../entities/character.entity';
 
 export class CharacterQuery extends Query<CharacterState> {
   characters$ = this.select((state) => state.characters);

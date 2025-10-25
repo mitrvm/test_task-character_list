@@ -2,12 +2,42 @@ import { Injectable, inject } from '@angular/core';
 import { Apollo, gql } from 'apollo-angular';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Character } from '../entities/character.entity';
+import { Character, Episode, Location } from '../entities/character.entity';
 
 interface CharacterFilter {
   name?: string;
   gender?: string;
   status?: string;
+}
+
+interface CharacterInfo {
+  count: number;
+  pages: number;
+  next: number | null;
+  prev: number | null;
+}
+
+interface CharacterResult {
+  id: string;
+  name: string;
+  gender: string;
+  image: string;
+  status?: string;
+  species?: string;
+  origin?: Location;
+  location?: Location;
+  episode?: Episode[];
+}
+
+interface CharactersResponse {
+  characters: {
+    info: CharacterInfo;
+    results: CharacterResult[];
+  };
+}
+
+interface CharacterResponse {
+  character: CharacterResult;
 }
 
 const GET_CHARACTERS = gql`
@@ -73,9 +103,9 @@ export class GraphqlService {
   getCharacters(
     page?: number,
     filter?: CharacterFilter,
-  ): Observable<{ results: Character[]; info: any; loading: boolean }> {
+  ): Observable<{ results: Character[]; info: CharacterInfo; loading: boolean }> {
     return this.apollo
-      .watchQuery<any>({
+      .watchQuery<CharactersResponse>({
         query: GET_CHARACTERS,
         variables: { page, filter: filter || {} },
         notifyOnNetworkStatusChange: true,
@@ -83,8 +113,13 @@ export class GraphqlService {
       })
       .valueChanges.pipe(
         map(({ data, loading }) => ({
-          results: data?.characters?.results ?? [],
-          info: data?.characters?.info ?? {},
+          results: (data?.characters?.results as Character[]) ?? [],
+          info: {
+            count: data?.characters?.info?.count ?? 0,
+            pages: data?.characters?.info?.pages ?? 0,
+            next: data?.characters?.info?.next ?? null,
+            prev: data?.characters?.info?.prev ?? null,
+          },
           loading,
         })),
       );
@@ -92,7 +127,7 @@ export class GraphqlService {
 
   getCharacter(id: string) {
     return this.apollo
-      .query<any>({
+      .query<CharacterResponse>({
         query: GET_CHARACTER,
         variables: { id },
         fetchPolicy: 'network-only',
